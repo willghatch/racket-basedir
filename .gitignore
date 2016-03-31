@@ -1,0 +1,6 @@
+compiled
+# ignore scribble junk if I make it by hand
+*.css
+*.js
+*.html
+
