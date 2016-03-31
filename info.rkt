@@ -1,5 +1,7 @@
 #lang info
 
-(define build-deps '("scribble-lib"))
+(define deps '("base"))
+(define build-deps '("scribble-lib"
+                     "racket-doc"))
 (define scribblings '(("doc.scrbl" () (library))))
 
