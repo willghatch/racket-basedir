@@ -5,12 +5,12 @@
 (provide
  (rename-out [xdg-program-name current-xdg-program-name])
  (contract-out
-  [list-config-files (-> path-string? path-string? (listof path?))]
-  [list-data-files (-> path-string? path-string? (listof path?))]
-  [list-cache-files (-> path-string? path-string? (listof path?))]
-  [writable-config-file (-> path-string? path-string? path?)]
-  [writable-data-file (-> path-string? path-string? path?)]
-  [writable-cache-file (-> path-string? path-string? path?)]
+  [list-config-files (->* (path-string?) (path-string?) (listof path?))]
+  [list-data-files (->* (path-string?) (path-string?) (listof path?))]
+  [list-cache-files (->* (path-string?) (path-string?) (listof path?))]
+  [writable-config-file (->* (path-string?) (path-string?) path?)]
+  [writable-data-file (->* (path-string?) (path-string?) path?)]
+  [writable-cache-file (->* (path-string?) (path-string?) path?)]
   ))
 
 (define unixy-os? (not (equal? (system-type 'os) 'windows)))
@@ -69,7 +69,7 @@ always exist.  And $HOME should always be there on any unix system.
         #f)))
 
 (define (list-files dirs-string home-dir-string file-name program-name)
-  (let* ([dirs (path-list-string->path-list (dirs-string))]
+  (let* ([dirs (path-list-string->path-list dirs-string null)]
          [paths (cons (make-xdg-path home-dir-string program-name file-name)
                       (map (λ (d) (build-path d program-name file-name))
                            dirs))]
