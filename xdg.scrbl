@@ -119,3 +119,33 @@ Similar to @racket[writable-config-file].
          path?]{
 Similar to @racket[writable-config-file].
 }
+
+@defproc[(list-config-dirs [program-name path-string? (current-xdg-program-name)])
+         (listof path?)]{
+Returns a list of paths to configuration directories for your program.
+They may or may not exist.  If there is a particular file you are looking
+for in these directories, prefer @racket[list-config-files].
+}
+@defproc[(list-data-dirs [program-name path-string? (current-xdg-program-name)])
+         (listof path?)]{
+Similar to @racket[list-config-dirs].
+}
+@defproc[(list-cache-dirs [program-name path-string? (current-xdg-program-name)])
+         (listof path?)]{
+Similar to @racket[list-config-dirs].
+}
+
+@defproc[(writable-config-dir [program-name path-string? (current-xdg-program-name)])
+         path?]{
+Returns the path to the writable configuration directory for your
+program.  Not guaranteed to exist.  If there is a particular configuration
+file you want to write, prefer @racket[writable-config-file].
+}
+@defproc[(writable-data-dir [program-name path-string? (current-xdg-program-name)])
+         path?]{
+Similar to @racket[writable-config-dir]
+}
+@defproc[(writable-cache-dir [program-name path-string? (current-xdg-program-name)])
+         path?]{
+Similar to @racket[writable-config-dir]
+}
