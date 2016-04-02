@@ -76,6 +76,10 @@ and @code{/home/bobby/.config/foo/foorc},
 for those three files that exist on the path.  The @code{foo} program
 should, if possible, use the pieces of configuration found in each of
 the files.
+
+Also note that @racket[file-name] may actually be a path
+(eg. @code{subdir/filename}), in case you want further nesting in your
+configuration or data directory.
 }
 
 @defproc[(list-data-files [file-name path-string?]
