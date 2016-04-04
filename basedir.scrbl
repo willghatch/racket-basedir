@@ -56,10 +56,18 @@ can set your program's XDG path name once and not put it
 in every call to other basedir functions.
 }
 
+@deftogether[(
 @defproc[(list-config-files [file-name path-string?]
                             [#:program program-name path-string? (current-basedir-program-name)])
-         (listof path?)]{
-Returns a list of configuration files with the name
+         (listof path?)]{}
+@defproc[(list-data-files [file-name path-string?]
+                          [#:program program-name path-string? (current-basedir-program-name)])
+         (listof path?)]{}
+@defproc[(list-cache-files [file-name path-string?]
+                           [#:program program-name path-string? (current-basedir-program-name)])
+         (listof path?)]{}
+)]{
+Returns a list of configuration (or data or cache) files with the name
 @racket[file-name].  All returned files actually exist on the file
 system.
 
@@ -80,28 +88,26 @@ the files.
 Also note that @racket[file-name] may actually be a path
 (eg. @code{subdir/filename}), in case you want further nesting in your
 configuration or data directory.
-}
-
-@defproc[(list-data-files [file-name path-string?]
-                          [#:program program-name path-string? (current-basedir-program-name)])
-         (listof path?)]{
-Similar to @racket[list-config-files].
-}
-
-@defproc[(list-cache-files [file-name path-string?]
-                           [#:program program-name path-string? (current-basedir-program-name)])
-         (listof path?)]{
-Similar to @racket[list-config-files].
 
 While it is a list to have the same interface as the other two, there
-is only one cache directory defined by XDG, so the list will either have
-one element or it will be empty.
+is only one cache directory defined by XDG, so the list returned by
+@code{(list-cache-files "foo")} will either have one element or it
+will be empty.
 }
 
+@deftogether[(
 @defproc[(writable-config-file [file-name path-string?]
                                [#:program program-name path-string? (current-basedir-program-name)])
-         path?]{
-Returns a path to the writable configuration file with the name
+         path?]
+
+@defproc[(writable-data-file [file-name path-string?]
+                             [#:program program-name path-string? (current-basedir-program-name)])
+         path?]
+@defproc[(writable-cache-file [file-name path-string?]
+                              [#:program program-name path-string? (current-basedir-program-name)])
+         path?]
+)]{
+Returns a path to the writable configuration/data/cache file with the name
 @racket[file-name].  The file or directory to the file may not exist,
 and permissions may not make it actually writable, but the path is in
 the user-configured (or default) directory for writable configuration
@@ -113,43 +119,28 @@ to is @code{/home/bobby/.config/foo/foorc}.  That path would be returned
 by @code{(writable-config-file "foorc" "foo")}
 }
 
-@defproc[(writable-data-file [file-name path-string?]
-                             [#:program program-name path-string? (current-basedir-program-name)])
-         path?]{
-Similar to @racket[writable-config-file].
-}
-@defproc[(writable-cache-file [file-name path-string?]
-                              [#:program program-name path-string? (current-basedir-program-name)])
-         path?]{
-Similar to @racket[writable-config-file].
-}
-
+@deftogether[(
 @defproc[(list-config-dirs [#:program program-name path-string? (current-basedir-program-name)])
-         (listof path?)]{
-Returns a list of paths to configuration directories for your program.
+         (listof path?)]
+@defproc[(list-data-dirs [#:program program-name path-string? (current-basedir-program-name)])
+         (listof path?)]
+@defproc[(list-cache-dirs [#:program program-name path-string? (current-basedir-program-name)])
+         (listof path?)]
+)]{
+Returns a list of paths to configuration/data/cache directories for your program.
 They may or may not exist.  If there is a particular file you are looking
 for in these directories, prefer @racket[list-config-files].
 }
-@defproc[(list-data-dirs [#:program program-name path-string? (current-basedir-program-name)])
-         (listof path?)]{
-Similar to @racket[list-config-dirs].
-}
-@defproc[(list-cache-dirs [#:program program-name path-string? (current-basedir-program-name)])
-         (listof path?)]{
-Similar to @racket[list-config-dirs].
-}
 
+@deftogether[(
 @defproc[(writable-config-dir [#:program program-name path-string? (current-basedir-program-name)])
-         path?]{
-Returns the path to the writable configuration directory for your
+         path?]
+@defproc[(writable-data-dir [#:program program-name path-string? (current-basedir-program-name)])
+         path?]
+@defproc[(writable-cache-dir [#:program program-name path-string? (current-basedir-program-name)])
+         path?]
+)]{
+Returns the path to the writable configuration/data/cache directory for your
 program.  Not guaranteed to exist.  If there is a particular configuration
 file you want to write, prefer @racket[writable-config-file].
-}
-@defproc[(writable-data-dir [#:program program-name path-string? (current-basedir-program-name)])
-         path?]{
-Similar to @racket[writable-config-dir]
-}
-@defproc[(writable-cache-dir [#:program program-name path-string? (current-basedir-program-name)])
-         path?]{
-Similar to @racket[writable-config-dir]
 }
