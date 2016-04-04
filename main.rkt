@@ -5,13 +5,31 @@
 (provide
  (rename-out [xdg-program-name current-basedir-program-name])
  (contract-out
-  [list-config-files (->* (path-string?) (#:program path-string?) (listof path?))]
-  [list-data-files (->* (path-string?) (#:program path-string?) (listof path?))]
-  [list-cache-files (->* (path-string?) (#:program path-string?) (listof path?))]
+  [list-config-files (->* (path-string?)
+                          (#:program path-string?
+                           #:only-existing? boolean?)
+                          (listof path?))]
+  [list-data-files (->* (path-string?)
+                          (#:program path-string?
+                           #:only-existing? boolean?)
+                          (listof path?))]
+  [list-cache-files (->* (path-string?)
+                          (#:program path-string?
+                           #:only-existing? boolean?)
+                          (listof path?))]
 
-  [list-config-dirs (->* () (#:program path-string?) (listof path?))]
-  [list-data-dirs (->* () (#:program path-string?) (listof path?))]
-  [list-cache-dirs (->* () (#:program path-string?) (listof path?))]
+  [list-config-dirs (->* ()
+                         (#:program path-string?
+                          #:only-existing? boolean?)
+                         (listof path?))]
+  [list-data-dirs (->* ()
+                         (#:program path-string?
+                          #:only-existing? boolean?)
+                         (listof path?))]
+  [list-cache-dirs (->* ()
+                         (#:program path-string?
+                          #:only-existing? boolean?)
+                         (listof path?))]
 
   [writable-config-file (->* (path-string?) (#:program path-string?) path?)]
   [writable-data-file (->* (path-string?) (#:program path-string?) path?)]
@@ -80,30 +98,52 @@ always exist.  And $HOME should always be there on any unix system.
 (define (make-xdg-file-path* dir-path file)
   (cpath (build-path dir-path file)))
 
-(define (list-dirs dirs-string home-dir-string program-name)
-  (let ([dirs (path-list-string->path-list dirs-string null)])
-    (cons (make-xdg-dir-path home-dir-string program-name)
-          (map (λ (d) (make-xdg-dir-path d program-name)) dirs))))
+(define (list-dirs dirs-string home-dir-string program-name only-exist??)
+  (let* ([dirs (path-list-string->path-list dirs-string null)]
+         [paths (cons (make-xdg-dir-path home-dir-string program-name)
+                      (map (λ (d) (make-xdg-dir-path d program-name)) dirs))])
+    (if only-exist??
+        (filter directory-exists? paths)
+        paths)))
 
-(define (list-files dirs-string home-dir-string file-name program-name)
-  (let ([dirs (list-dirs dirs-string home-dir-string program-name)])
-    (filter file-exists? (map (λ (d) (make-xdg-file-path* d file-name)) dirs))))
+(define (list-files dirs-string home-dir-string file-name program-name only-exist??)
+  (let* ([dirs (list-dirs dirs-string home-dir-string program-name #f)]
+         [paths (map (λ (d) (make-xdg-file-path* d file-name)) dirs)])
+    (if only-exist??
+        (filter file-exists? paths)
+        paths)))
 
 ;;;;;;;;;;;; The exported functions
 
-(define (list-data-files file-name #:program [program-name (xdg-program-name)])
-  (list-files (data-dirs) (data-home) file-name program-name))
-(define (list-config-files file-name #:program [program-name (xdg-program-name)])
-  (list-files (config-dirs) (config-home) file-name program-name))
-(define (list-cache-files file-name #:program [program-name (xdg-program-name)])
-  (list-files (cache-dirs) (cache-home) file-name program-name))
+;; TODO - use a macro (I wrote one with syntax-case that failed (begin
+;; had no expression after sequence of definitions...))
+(define (list-data-files file-name
+                         #:program [program-name (xdg-program-name)]
+                         #:only-existing? [only-existing? #t])
+  (list-files (data-dirs) (data-home) file-name program-name only-existing?))
+(define (list-config-files file-name
+                         #:program [program-name (xdg-program-name)]
+                         #:only-existing? [only-existing? #t])
+  (list-files (config-dirs) (config-home) file-name program-name only-existing?))
+(define (list-cache-files file-name
+                         #:program [program-name (xdg-program-name)]
+                         #:only-existing? [only-existing? #t])
+  (list-files (cache-dirs) (cache-home) file-name program-name only-existing?))
 
-(define (list-data-dirs #:program [program-name (xdg-program-name)])
-  (list-dirs (data-dirs) (data-home) program-name))
-(define (list-config-dirs #:program [program-name (xdg-program-name)])
-  (list-dirs (config-dirs) (config-home) program-name))
-(define (list-cache-dirs #:program [program-name (xdg-program-name)])
-  (list-dirs (cache-dirs) (cache-home) program-name))
+
+(define (list-data-dirs
+         #:program [program-name (xdg-program-name)]
+         #:only-existing? [only-existing? #t])
+  (list-dirs (data-dirs) (data-home) program-name only-existing?))
+(define (list-config-dirs
+         #:program [program-name (xdg-program-name)]
+         #:only-existing? [only-existing? #t])
+  (list-dirs (config-dirs) (config-home) program-name only-existing?))
+(define (list-cache-dirs
+         #:program [program-name (xdg-program-name)]
+         #:only-existing? [only-existing? #t])
+  (list-dirs (cache-dirs) (cache-home) program-name only-existing?))
+
 
 (define (writable-data-file file-name #:program [program-name (xdg-program-name)])
   (build-path (data-home) program-name file-name))
@@ -112,13 +152,11 @@ always exist.  And $HOME should always be there on any unix system.
 (define (writable-cache-file file-name #:program [program-name (xdg-program-name)])
   (build-path (cache-home) program-name file-name))
 
+
 (define (writable-data-dir #:program [program-name (xdg-program-name)])
   (build-path (data-home) program-name))
 (define (writable-config-dir #:program [program-name (xdg-program-name)])
   (build-path (config-home) program-name))
 (define (writable-cache-dir #:program [program-name (xdg-program-name)])
   (build-path (cache-home) program-name))
-
-
-
 

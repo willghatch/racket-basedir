@@ -58,18 +58,21 @@ in every call to other basedir functions.
 
 @deftogether[(
 @defproc[(list-config-files [file-name path-string?]
-                            [#:program program-name path-string? (current-basedir-program-name)])
+                            [#:program program-name path-string? (current-basedir-program-name)]
+                            [#:only-existing? only-existing? #t])
          (listof path?)]{}
 @defproc[(list-data-files [file-name path-string?]
-                          [#:program program-name path-string? (current-basedir-program-name)])
+                          [#:program program-name path-string? (current-basedir-program-name)]
+                          [#:only-existing? only-existing? #t])
          (listof path?)]{}
 @defproc[(list-cache-files [file-name path-string?]
-                           [#:program program-name path-string? (current-basedir-program-name)])
+                           [#:program program-name path-string? (current-basedir-program-name)]
+                           [#:only-existing? only-existing? #t])
          (listof path?)]{}
 )]{
 Returns a list of configuration (or data or cache) files with the name
-@racket[file-name].  All returned files actually exist on the file
-system.
+@racket[file-name].  If @racket[only-existing?] is true, then only files
+that actually exist on the file system will be returned.
 
 For example, let's say you write a program named "foo" and your main config file
 is named "foorc".
@@ -80,7 +83,7 @@ and @code{/home/bobby/.config/foo/foorc},
 @code{/home/bobby/config-git/foo/foorc}, and
 @code{/home/bobby/local-config/foo/foorc} exist (but not
 @code{/home/bobby/config-git-private/foo/foorc}), then
-@code{(list-config-files "foorc" "foo")} will return a list of paths
+@code{(list-config-files "foorc" #:program "foo")} will return a list of paths
 for those three files that exist on the path.  The @code{foo} program
 should, if possible, use the pieces of configuration found in each of
 the files.
@@ -91,7 +94,7 @@ configuration or data directory.
 
 While it is a list to have the same interface as the other two, there
 is only one cache directory defined by XDG, so the list returned by
-@code{(list-cache-files "foo")} will either have one element or it
+@code{(list-cache-files "some-file")} will either have one element or it
 will be empty.
 }
 
@@ -116,20 +119,25 @@ files.
 Following the example from above with Bobby and the foo program,
 while several "foorc" files exist, the only one that should be written
 to is @code{/home/bobby/.config/foo/foorc}.  That path would be returned
-by @code{(writable-config-file "foorc" "foo")}
+by @code{(writable-config-file "foorc" #:program "foo")}
 }
 
 @deftogether[(
-@defproc[(list-config-dirs [#:program program-name path-string? (current-basedir-program-name)])
+@defproc[(list-config-dirs [#:program program-name path-string? (current-basedir-program-name)]
+                           [#:only-existing? only-existing? #t])
          (listof path?)]
-@defproc[(list-data-dirs [#:program program-name path-string? (current-basedir-program-name)])
+@defproc[(list-data-dirs [#:program program-name path-string? (current-basedir-program-name)]
+                         [#:only-existing? only-existing? #t])
          (listof path?)]
-@defproc[(list-cache-dirs [#:program program-name path-string? (current-basedir-program-name)])
+@defproc[(list-cache-dirs [#:program program-name path-string? (current-basedir-program-name)]
+                          [#:only-existing? only-existing? #t])
          (listof path?)]
 )]{
-Returns a list of paths to configuration/data/cache directories for your program.
-They may or may not exist.  If there is a particular file you are looking
-for in these directories, prefer @racket[list-config-files].
+Returns a list of paths to configuration/data/cache directories for
+your program.  If @racket[only-existing?] is true, then only
+directories that exist in the filesystem will be returned.  If there
+is a particular file you are looking for in these directories, prefer
+@racket[list-config-files] and friends.
 }
 
 @deftogether[(
@@ -142,5 +150,5 @@ for in these directories, prefer @racket[list-config-files].
 )]{
 Returns the path to the writable configuration/data/cache directory for your
 program.  Not guaranteed to exist.  If there is a particular configuration
-file you want to write, prefer @racket[writable-config-file].
+file you want to write, prefer @racket[writable-config-file] and friends.
 }
