@@ -5,21 +5,21 @@
 (provide
  (rename-out [xdg-program-name current-basedir-program-name])
  (contract-out
-  [list-config-files (->* (path-string?) (path-string?) (listof path?))]
-  [list-data-files (->* (path-string?) (path-string?) (listof path?))]
-  [list-cache-files (->* (path-string?) (path-string?) (listof path?))]
+  [list-config-files (->* (path-string?) (#:program path-string?) (listof path?))]
+  [list-data-files (->* (path-string?) (#:program path-string?) (listof path?))]
+  [list-cache-files (->* (path-string?) (#:program path-string?) (listof path?))]
 
-  [list-config-dirs (->* () (path-string?) (listof path?))]
-  [list-data-dirs (->* () (path-string?) (listof path?))]
-  [list-cache-dirs (->* () (path-string?) (listof path?))]
+  [list-config-dirs (->* () (#:program path-string?) (listof path?))]
+  [list-data-dirs (->* () (#:program path-string?) (listof path?))]
+  [list-cache-dirs (->* () (#:program path-string?) (listof path?))]
 
-  [writable-config-file (->* (path-string?) (path-string?) path?)]
-  [writable-data-file (->* (path-string?) (path-string?) path?)]
-  [writable-cache-file (->* (path-string?) (path-string?) path?)]
+  [writable-config-file (->* (path-string?) (#:program path-string?) path?)]
+  [writable-data-file (->* (path-string?) (#:program path-string?) path?)]
+  [writable-cache-file (->* (path-string?) (#:program path-string?) path?)]
 
-  [writable-config-dir (->* () (path-string?) path?)]
-  [writable-data-dir (->* () (path-string?) path?)]
-  [writable-cache-dir (->* () (path-string?) path?)]
+  [writable-config-dir (->* () (#:program path-string?) path?)]
+  [writable-data-dir (->* () (#:program path-string?) path?)]
+  [writable-cache-dir (->* () (#:program path-string?) path?)]
   ))
 
 (define unixy-os? (not (equal? (system-type 'os) 'windows)))
@@ -91,32 +91,32 @@ always exist.  And $HOME should always be there on any unix system.
 
 ;;;;;;;;;;;; The exported functions
 
-(define (list-data-files file-name [program-name (xdg-program-name)])
+(define (list-data-files file-name #:program [program-name (xdg-program-name)])
   (list-files (data-dirs) (data-home) file-name program-name))
-(define (list-config-files file-name [program-name (xdg-program-name)])
+(define (list-config-files file-name #:program [program-name (xdg-program-name)])
   (list-files (config-dirs) (config-home) file-name program-name))
-(define (list-cache-files file-name [program-name (xdg-program-name)])
+(define (list-cache-files file-name #:program [program-name (xdg-program-name)])
   (list-files (cache-dirs) (cache-home) file-name program-name))
 
-(define (list-data-dirs [program-name (xdg-program-name)])
+(define (list-data-dirs #:program [program-name (xdg-program-name)])
   (list-dirs (data-dirs) (data-home) program-name))
-(define (list-config-dirs [program-name (xdg-program-name)])
+(define (list-config-dirs #:program [program-name (xdg-program-name)])
   (list-dirs (config-dirs) (config-home) program-name))
-(define (list-cache-dirs [program-name (xdg-program-name)])
+(define (list-cache-dirs #:program [program-name (xdg-program-name)])
   (list-dirs (cache-dirs) (cache-home) program-name))
 
-(define (writable-data-file file-name [program-name (xdg-program-name)])
+(define (writable-data-file file-name #:program [program-name (xdg-program-name)])
   (build-path (data-home) program-name file-name))
-(define (writable-config-file file-name [program-name (xdg-program-name)])
+(define (writable-config-file file-name #:program [program-name (xdg-program-name)])
   (build-path (config-home) program-name file-name))
-(define (writable-cache-file file-name [program-name (xdg-program-name)])
+(define (writable-cache-file file-name #:program [program-name (xdg-program-name)])
   (build-path (cache-home) program-name file-name))
 
-(define (writable-data-dir [program-name (xdg-program-name)])
+(define (writable-data-dir #:program [program-name (xdg-program-name)])
   (build-path (data-home) program-name))
-(define (writable-config-dir [program-name (xdg-program-name)])
+(define (writable-config-dir #:program [program-name (xdg-program-name)])
   (build-path (config-home) program-name))
-(define (writable-cache-dir [program-name (xdg-program-name)])
+(define (writable-cache-dir #:program [program-name (xdg-program-name)])
   (build-path (cache-home) program-name))
 
 
