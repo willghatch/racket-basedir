@@ -59,15 +59,15 @@ in every call to other basedir functions.
 @deftogether[(
 @defproc[(list-config-files [file-name path-string?]
                             [#:program program-name path-string? (current-basedir-program-name)]
-                            [#:only-existing? only-existing? #t])
+                            [#:only-existing? only-existing? any/c #t])
          (listof path?)]{}
 @defproc[(list-data-files [file-name path-string?]
                           [#:program program-name path-string? (current-basedir-program-name)]
-                          [#:only-existing? only-existing? #t])
+                          [#:only-existing? only-existing? any/c #t])
          (listof path?)]{}
 @defproc[(list-cache-files [file-name path-string?]
                            [#:program program-name path-string? (current-basedir-program-name)]
-                           [#:only-existing? only-existing? #t])
+                           [#:only-existing? only-existing? any/c #t])
          (listof path?)]{}
 )]{
 Returns a list of configuration (or data or cache) files with the name
@@ -124,13 +124,13 @@ by @code{(writable-config-file "foorc" #:program "foo")}
 
 @deftogether[(
 @defproc[(list-config-dirs [#:program program-name path-string? (current-basedir-program-name)]
-                           [#:only-existing? only-existing? #t])
+                           [#:only-existing? only-existing? any/c #t])
          (listof path?)]
 @defproc[(list-data-dirs [#:program program-name path-string? (current-basedir-program-name)]
-                         [#:only-existing? only-existing? #t])
+                         [#:only-existing? only-existing? any/c #t])
          (listof path?)]
 @defproc[(list-cache-dirs [#:program program-name path-string? (current-basedir-program-name)]
-                          [#:only-existing? only-existing? #t])
+                          [#:only-existing? only-existing? any/c #t])
          (listof path?)]
 )]{
 Returns a list of paths to configuration/data/cache directories for

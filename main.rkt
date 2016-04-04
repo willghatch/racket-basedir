@@ -7,28 +7,28 @@
  (contract-out
   [list-config-files (->* (path-string?)
                           (#:program path-string?
-                           #:only-existing? boolean?)
+                           #:only-existing? any/c)
                           (listof path?))]
   [list-data-files (->* (path-string?)
                           (#:program path-string?
-                           #:only-existing? boolean?)
+                           #:only-existing? any/c)
                           (listof path?))]
   [list-cache-files (->* (path-string?)
                           (#:program path-string?
-                           #:only-existing? boolean?)
+                           #:only-existing? any/c)
                           (listof path?))]
 
   [list-config-dirs (->* ()
                          (#:program path-string?
-                          #:only-existing? boolean?)
+                          #:only-existing? any/c)
                          (listof path?))]
   [list-data-dirs (->* ()
                          (#:program path-string?
-                          #:only-existing? boolean?)
+                          #:only-existing? any/c)
                          (listof path?))]
   [list-cache-dirs (->* ()
                          (#:program path-string?
-                          #:only-existing? boolean?)
+                          #:only-existing? any/c)
                          (listof path?))]
 
   [writable-config-file (->* (path-string?) (#:program path-string?) path?)]
