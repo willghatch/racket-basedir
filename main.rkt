@@ -3,7 +3,7 @@
 (require racket/contract)
 
 (provide
- (rename-out [xdg-program-name current-xdg-program-name])
+ (rename-out [xdg-program-name current-basedir-program-name])
  (contract-out
   [list-config-files (->* (path-string?) (path-string?) (listof path?))]
   [list-data-files (->* (path-string?) (path-string?) (listof path?))]

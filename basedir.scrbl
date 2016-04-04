@@ -1,18 +1,18 @@
 #lang scribble/manual
 @(require (for-label racket/base
                      racket/contract
-                     xdg))
+                     basedir))
 
-@title[#:tag "xdg"]{XDG Basedir Library}
+@title[#:tag "basedir"]{XDG Basedir Library}
 @author+email["William Hatch" "william@hatch.uno"]
 
-@defmodule[xdg]
+@defmodule[basedir]
 
 This library provides functions for easily accessing configuration and
 data files according to the @deftech{XDG Base Directory
 Specification}.
 
-The point of the XDG directory is to allow programs to put
+The point of the XDG base directory is to allow programs to put
 configuration and data files on the filesystem in a consistent and
 user-configurable way.  It solves the problem of having many different
 configuration and data files and directories (dotfiles) in your home
@@ -46,14 +46,14 @@ When unset, the XDG variables default to:
 @item{@code{$XDG_CACHE_HOME} = @code{$HOME/.cache} (on Windows: @code{%TEMP%})}
 ]
 
-@defparam[current-xdg-program-name name path-string?]{
+@defparam[current-basedir-program-name name path-string?]{
 Default program name for making file-system paths in the
 configuration, data, etc directories.  For the love of all
 that is good, please do not put spaces in this.
 
 This parameter is provided for convenience, so that you
 can set your program's XDG path name once and not put it
-in every call to other XDG functions.
+in every call to other basedir functions.
 }
 
 @defproc[(list-config-files [file-name path-string?]
