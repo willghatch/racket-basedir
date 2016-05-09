@@ -152,3 +152,13 @@ Returns the path to the writable configuration/data/cache directory for your
 program.  Not guaranteed to exist.  If there is a particular configuration
 file you want to write, prefer @racket[writable-config-file] and friends.
 }
+
+@section{Code and License}
+
+The code is available
+@hyperlink["https://github.com/willghatch/racket-basedir"]{on github}.
+
+This library is licensed under the terms of the LGPL version 3, or (at
+your option) any later version published by the Free Software
+Foundation (IE LGPL3+).
+
