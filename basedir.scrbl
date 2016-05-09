@@ -79,7 +79,7 @@ is named "foorc".
 Bobby (a Debian user) has @code{$XDG_CONFIG_HOME} unset (IE at its
 default value) and @code{$XDG_CONFIG_DIRS} set to
 @code{/home/bobby/config-git:/home/bobby/config-git-private:/home/bobby/local-config}
-and @code{/home/bobby/.config/foo/foorc},
+and the files @code{/home/bobby/.config/foo/foorc},
 @code{/home/bobby/config-git/foo/foorc}, and
 @code{/home/bobby/local-config/foo/foorc} exist (but not
 @code{/home/bobby/config-git-private/foo/foorc}), then
