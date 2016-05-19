@@ -44,7 +44,28 @@ When unset, the XDG variables default to:
 @item{@code{$XDG_DATA_HOME} = @code{$HOME/.local/share/} (on Windows: @code{%LOCALAPPDATA%})}
 @item{@code{$XDG_DATA_DIRS} = @code{/usr/local/share/:/usr/share/} (on Windows: @code{%APPDATA%})}
 @item{@code{$XDG_CACHE_HOME} = @code{$HOME/.cache} (on Windows: @code{%TEMP%})}
+@item{@code{$XDG_RUNTIME_DIR} is a little more complicated.  On Unixy
+systems it checks whether @code{/run/user/$(id -u)} exists and uses it
+if it does (systems with systemd and its PAM module have these
+directories created automatically for this purpose).  Otherwise it
+falls back to @code{/tmp/user-$USER}.  On Windows it currently
+defaults to @code{%TEMP%}, because I am unaware of a standard
+directory with semantics more like @code{XDG_RUNTIME_DIR} is supposed
+to have.}
 ]
+
+Some words of warning about the runtime dir: The runtime dir should be
+used for storing ephemeral things like pipes and sockets or other
+objects restricted to the current run of the program.  It is likely
+created when a user logs in and deleted when the user logs out.  It
+probably lives in a RAM-based file system.  The spec says that it may
+be cleaned of old files occasionally, and to keep your files from
+being cleaned up you should either update their timestamps regularly
+(every 6 hours is what they consider regularly) or set the sticky bit
+on the files.  The directory should be readable only by the owner.
+
+To learn more about the XDG basedir specification, visit
+@url{https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html}
 
 @defparam[current-basedir-program-name name path-string?]{
 Default program name for making file-system paths in the
@@ -66,6 +87,10 @@ in every call to other basedir functions.
                           [#:only-existing? only-existing? any/c #t])
          (listof path?)]{}
 @defproc[(list-cache-files [file-name path-string?]
+                           [#:program program-name path-string? (current-basedir-program-name)]
+                           [#:only-existing? only-existing? any/c #t])
+         (listof path?)]{}
+@defproc[(list-runtime-files [file-name path-string?]
                            [#:program program-name path-string? (current-basedir-program-name)]
                            [#:only-existing? only-existing? any/c #t])
          (listof path?)]{}
@@ -92,10 +117,9 @@ Also note that @racket[file-name] may actually be a path
 (eg. @code{subdir/filename}), in case you want further nesting in your
 configuration or data directory.
 
-While it is a list to have the same interface as the other two, there
-is only one cache directory defined by XDG, so the list returned by
-@code{(list-cache-files "some-file")} will either have one element or it
-will be empty.
+Since there is only one cache directory and one runtime directory,
+@racket[list-cache-files] and @racket[list-runtime-files] will return
+either a list with one element or an empty list.
 }
 
 @deftogether[(
@@ -109,12 +133,17 @@ will be empty.
 @defproc[(writable-cache-file [file-name path-string?]
                               [#:program program-name path-string? (current-basedir-program-name)])
          path?]
+@defproc[(writable-runtime-file [file-name path-string?]
+                              [#:program program-name path-string? (current-basedir-program-name)])
+         path?]
 )]{
-Returns a path to the writable configuration/data/cache file with the name
-@racket[file-name].  The file or directory to the file may not exist,
-and permissions may not make it actually writable, but the path is in
-the user-configured (or default) directory for writable configuration
-files.
+Returns a path to the writable configuration/data/cache file with the
+name @racket[file-name].  The file or directory to the file may not
+exist (so you may want to @racket[make-parent-directory*] on it and
+set any relevent permissions), and permissions may not make it
+actually writable (IE @racket[make-directory] may fail), but the path
+is in the user-configured (or default) directory for writable
+configuration/data/etc files.
 
 Following the example from above with Bobby and the foo program,
 while several "foorc" files exist, the only one that should be written
@@ -132,6 +161,9 @@ by @code{(writable-config-file "foorc" #:program "foo")}
 @defproc[(list-cache-dirs [#:program program-name path-string? (current-basedir-program-name)]
                           [#:only-existing? only-existing? any/c #t])
          (listof path?)]
+@defproc[(list-runtime-dirs [#:program program-name path-string? (current-basedir-program-name)]
+                          [#:only-existing? only-existing? any/c #t])
+         (listof path?)]
 )]{
 Returns a list of paths to configuration/data/cache directories for
 your program.  If @racket[only-existing?] is true, then only
@@ -146,6 +178,8 @@ is a particular file you are looking for in these directories, prefer
 @defproc[(writable-data-dir [#:program program-name path-string? (current-basedir-program-name)])
          path?]
 @defproc[(writable-cache-dir [#:program program-name path-string? (current-basedir-program-name)])
+         path?]
+@defproc[(writable-runtime-dir [#:program program-name path-string? (current-basedir-program-name)])
          path?]
 )]{
 Returns the path to the writable configuration/data/cache directory for your

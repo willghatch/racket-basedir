@@ -1,6 +1,9 @@
 #lang racket/base
 
 (require racket/contract)
+(require racket/string)
+(require racket/port)
+(require racket/system)
 
 (provide
  (rename-out [xdg-program-name current-basedir-program-name])
@@ -17,6 +20,10 @@
                           (#:program path-string?
                            #:only-existing? any/c)
                           (listof path?))]
+  [list-runtime-files (->* (path-string?)
+                          (#:program path-string?
+                           #:only-existing? any/c)
+                          (listof path?))]
 
   [list-config-dirs (->* ()
                          (#:program path-string?
@@ -30,14 +37,20 @@
                          (#:program path-string?
                           #:only-existing? any/c)
                          (listof path?))]
+  [list-runtime-dirs (->* ()
+                         (#:program path-string?
+                          #:only-existing? any/c)
+                         (listof path?))]
 
   [writable-config-file (->* (path-string?) (#:program path-string?) path?)]
   [writable-data-file (->* (path-string?) (#:program path-string?) path?)]
   [writable-cache-file (->* (path-string?) (#:program path-string?) path?)]
+  [writable-runtime-file (->* (path-string?) (#:program path-string?) path?)]
 
   [writable-config-dir (->* () (#:program path-string?) path?)]
   [writable-data-dir (->* () (#:program path-string?) path?)]
   [writable-cache-dir (->* () (#:program path-string?) path?)]
+  [writable-runtime-dir (->* () (#:program path-string?) path?)]
   ))
 
 (define unixy-os? (not (equal? (system-type 'os) 'windows)))
@@ -83,8 +96,37 @@ always exist.  And $HOME should always be there on any unix system.
         (string-append (getenv "HOME") "/.cache/")
         (getenv "TEMP")))
   (or (getenv "XDG_CACHE_HOME") (default)))
-(define (cache-dirs) "")
-;; TODO - runtime-dir
+
+(define (runtime-home)
+  (define (default)
+    (if unixy-os?
+        (get-unix-default-runtime-dir)
+        ;; I'm not sure what to do for Windows, except to re-use the TEMP dir.
+        (getenv "TEMP")))
+  (or (getenv "XDG_RUNTIME_DIR") (default)))
+(define (get-unix-default-runtime-dir)
+  (define (get-uid)
+    ;; TODO - I feel like there should be a better way...
+    (with-handlers ([(λ _ #t) (λ _ #f)])
+      (string->number
+       (string-trim
+        (with-output-to-string
+          (λ () (system* (find-executable-path "id") "-u")))))))
+  (let* ([uid (get-uid)]
+         [systemd-default-path (and uid (build-path "/run/user/"
+                                                    (number->string uid)))]
+         [username (getenv "USER")])
+    (cond
+      [(and systemd-default-path (directory-exists? systemd-default-path))
+       systemd-default-path]
+      ;; TODO - I want the next fallback to be /tmp/$USER or something, but I
+      ;; want to check that it is actually owned by that user, and then set
+      ;; the right permissions on it.  I'm not currently sure how to check the
+      ;; ownership...
+      ;; TODO - which of these should I actually prefer?
+      [username (build-path "/tmp/" (string-append "user-" username))]
+      [uid (build-path "/tmp/" (string-append "user-" (number->string uid)))]
+      [else (build-path "/tmp")])))
 
 (define xdg-program-name (make-parameter "unnamed-program"))
 
@@ -128,7 +170,11 @@ always exist.  And $HOME should always be there on any unix system.
 (define (list-cache-files file-name
                          #:program [program-name (xdg-program-name)]
                          #:only-existing? [only-existing? #t])
-  (list-files (cache-dirs) (cache-home) file-name program-name only-existing?))
+  (list-files "" (cache-home) file-name program-name only-existing?))
+(define (list-runtime-files file-name
+                         #:program [program-name (xdg-program-name)]
+                         #:only-existing? [only-existing? #t])
+  (list-files "" (runtime-home) file-name program-name only-existing?))
 
 
 (define (list-data-dirs
@@ -142,7 +188,11 @@ always exist.  And $HOME should always be there on any unix system.
 (define (list-cache-dirs
          #:program [program-name (xdg-program-name)]
          #:only-existing? [only-existing? #t])
-  (list-dirs (cache-dirs) (cache-home) program-name only-existing?))
+  (list-dirs "" (cache-home) program-name only-existing?))
+(define (list-runtime-dirs
+         #:program [program-name (xdg-program-name)]
+         #:only-existing? [only-existing? #t])
+  (list-dirs "" (runtime-home) program-name only-existing?))
 
 
 (define (writable-data-file file-name #:program [program-name (xdg-program-name)])
@@ -151,6 +201,8 @@ always exist.  And $HOME should always be there on any unix system.
   (build-path (config-home) program-name file-name))
 (define (writable-cache-file file-name #:program [program-name (xdg-program-name)])
   (build-path (cache-home) program-name file-name))
+(define (writable-runtime-file file-name #:program [program-name (xdg-program-name)])
+  (build-path (runtime-home) program-name file-name))
 
 
 (define (writable-data-dir #:program [program-name (xdg-program-name)])
@@ -159,4 +211,6 @@ always exist.  And $HOME should always be there on any unix system.
   (build-path (config-home) program-name))
 (define (writable-cache-dir #:program [program-name (xdg-program-name)])
   (build-path (cache-home) program-name))
+(define (writable-runtime-dir #:program [program-name (xdg-program-name)])
+  (build-path (runtime-home) program-name))
 
