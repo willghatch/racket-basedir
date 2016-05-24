@@ -8,6 +8,8 @@
 
 @defmodule[basedir]
 
+@section{XDG Basedir Specification}
+
 This library provides functions for easily accessing configuration and
 data files according to the @deftech{XDG Base Directory
 Specification}.
@@ -66,6 +68,8 @@ on the files.  The directory should be readable only by the owner.
 
 To learn more about the XDG basedir specification, visit
 @url{https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html}
+
+@section{Reference}
 
 @defparam[current-basedir-program-name name path-string?]{
 Default program name for making file-system paths in the
