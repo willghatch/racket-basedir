@@ -70,7 +70,7 @@ always exist.  And $HOME should always be there on any unix system.
   (define (default)
     (if unixy-os?
         (string-append (getenv "HOME") "/.local/share/")
-        (getenv "APPDATA")))
+        (getenv "LOCALAPPDATA")))
   (or (getenv "XDG_DATA_HOME") (default)))
 (define (data-dirs)
   (define (default)
