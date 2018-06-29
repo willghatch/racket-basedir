@@ -79,6 +79,10 @@ that is good, please do not put spaces in this.
 This parameter is provided for convenience, so that you
 can set your program's XDG path name once and not put it
 in every call to other basedir functions.
+
+The default value of this parameter is NOT guaranteed to remain
+stable.  A program that wants to have configuration files should be
+setting its name so the user can see it.
 }
 
 @deftogether[(
