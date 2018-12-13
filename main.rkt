@@ -1,9 +1,12 @@
 #lang racket/base
 
-(require racket/contract)
-(require racket/string)
-(require racket/port)
-(require racket/system)
+(require
+ racket/contract
+ racket/string
+ racket/port
+ racket/system
+ racket/list
+ )
 
 (provide
  (rename-out [xdg-program-name current-basedir-program-name])
@@ -142,8 +145,9 @@ always exist.  And $HOME should always be there on any unix system.
 
 (define (list-dirs dirs-string home-dir-string program-name only-exist??)
   (let* ([dirs (path-list-string->path-list dirs-string null)]
-         [paths (cons (make-xdg-dir-path home-dir-string program-name)
-                      (map (λ (d) (make-xdg-dir-path d program-name)) dirs))])
+         [paths (remove-duplicates
+                 (cons (make-xdg-dir-path home-dir-string program-name)
+                       (map (λ (d) (make-xdg-dir-path d program-name)) dirs)))])
     (if only-exist??
         (filter directory-exists? paths)
         paths)))
